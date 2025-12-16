@@ -1,0 +1,155 @@
+{% extends "global/Page.html" %}
+{% load otree %}
+
+{% block title %}
+理解程度测试
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="card shadow-sm">
+        <div class="card-header bg-primary text-white">
+            <h4>📘 实验规则理解测试</h4>
+        </div>
+
+        <div class="card-body">
+            <p class="lead">
+                请回答下列问题，如果回答错误请根据正确答案的解说重新选择正确答案。
+            </p>
+            <hr>
+
+            <!-- ✅ 每题配置：选择后即时显示解释 -->
+            <div class="mb-3">
+                {% formfield player.q1 label="Q1. 每一轮开始时，你都会获得人生积分，这些积分你可以用于学习和生活的资源，而花时间学习会消耗这些积分。" %}
+                <p id="exp_q1" class="text-danger small mt-1"></p>
+            </div>
+
+            <div class="mb-3">
+                {% formfield player.q2 label="Q2. 你学习的时间越长，你的学习成绩越高，但你的人生积分会减少。" %}
+                <p id="exp_q2" class="text-danger small mt-1"></p>
+            </div>
+
+            <div class="mb-3">
+                {% formfield player.q3 label="Q3. 即使你排名第四，学习成绩较差，也有可能考入顶尖大学。" %}
+                <p id="exp_q3" class="text-danger small mt-1"></p>
+            </div>
+
+            <div class="mb-3">
+                {% formfield player.q4 label="Q4. 最终排名根据每位学生的学习成绩（学习时间）决定。" %}
+                <p id="exp_q4" class="text-danger small mt-1"></p>
+            </div>
+
+            <div class="mb-3">
+                {% formfield player.q5 label="Q5. 学习可以提高记得学习成绩，并增加你的人生积分。" %}
+                <p id="exp_q5" class="text-danger small mt-1"></p>
+            </div>
+
+            <div class="mb-3">
+                {% formfield player.q6 label="Q6. 增加学习时间的成本始终是恒定的：例如，从 2 小时增加到 3 小时的成本与从 8 小时增加到 9 小时的成本相同。" %}
+                <p id="exp_q6" class="text-danger small mt-1"></p>
+            </div>
+
+            <div class="mb-3">
+                {% formfield player.q7 label="Q7. 第一轮学习了1小时，第二轮学习了2小时，第三轮学习了3小时，第四轮学习了4小时，第五轮学习了5小时。这个人的学习成绩如何？" %}
+                <button type="button" id="checkQ7" class="btn btn-outline-primary btn-sm ms-2">确认</button>
+                <p id="exp_q7" class="text-danger small mt-1"></p>
+            </div>
+
+            <div class="text-center mt-4">
+                {% next_button %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ✅ JS 脚本：选择后立刻显示解释 -->
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const explanations = {
+        q1: "每一轮开始时你获得的人生积分用于学习的话会消耗你的人生积分。",
+        q2: "学习时间越长高学习成绩越高，但是人生积分会减少。",
+        q3: "只有学习成绩最高的一位学生才能考入顶尖大学。",
+        q4: "最终排名是根据学生的学习成绩决定。",
+        q5: "学习会消耗人生积分",
+        q6: "学习成本不是恒定的，会随着学习时间增长学习成本增高。",
+        q7: "正确答案是15 (1+2+3+4+5 = 15)。"
+    };
+
+    // 正确答案定义
+    const correct = { q1: true, q2: true, q3: false, q4: true, q5: false, q6: false, q7: 15 };
+
+    // --- 单选题即时判断 ---
+    for (const qid of ['q1', 'q2', 'q3', 'q4', 'q5', 'q6']) {
+        const radios = document.querySelectorAll(`[name="${qid}"]`);
+        radios.forEach(radio => {
+            radio.addEventListener("change", e => {
+                const val = (e.target.value === "True");
+                const msgEl = document.getElementById(`exp_${qid}`);
+                msgEl.textContent = (val === correct[qid]) ? "✅ 回答正确！" : explanations[qid];
+            });
+        });
+    }
+
+    // --- 第7题（输入题）点击确认按钮判断 ---
+    const q7input = document.querySelector('input[name="q7"]');
+    const q7btn = document.getElementById('checkQ7');
+    q7btn.addEventListener('click', () => {
+        const val = parseInt(q7input.value, 10);
+        const msgEl = document.getElementById('exp_q7');
+        if (isNaN(val)) {
+            msgEl.textContent = "请输入数字。";
+            return;
+        }
+        msgEl.textContent = (val === 15) ? "✅ 回答正确！" : explanations.q7;
+    });
+
+    // --- 提交后：把后端传来的 explanations_json 显示在各题下（阻止跳页时用） ---
+    const explanationsFromServer = {{ explanations_json|safe }};
+    if (explanationsFromServer && Object.keys(explanationsFromServer).length) {
+        for (const [qid, msg] of Object.entries(explanationsFromServer)) {
+            const el = document.getElementById(`exp_${qid}`);
+            if (el) el.textContent = msg;
+        }
+    }
+
+    // --- 自动滚到第一个错误 ---
+    const firstError = document.querySelector(".text-danger.small.mt-1:not(:empty)");
+    if (firstError) {
+        firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+});
+</script>
+
+
+<!-- ✅ 将 oTree 的默认日语提示替换为中文 -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const observer = new MutationObserver(() => {
+        // 选择所有的 oTree 验证提示元素
+        document.querySelectorAll('.otree-invalid-feedback, .invalid-feedback').forEach(el => {
+            const text = el.textContent.trim();
+            if (
+                text.includes('これらのオプションのうち') ||
+                text.includes('いずれかを選択してください') ||
+                text.includes('Select one of the options')
+            ) {
+                el.textContent = '请选择一个选项。';
+            }
+        });
+
+        // 有时提示文字包裹在 title 属性里（鼠标悬停提示）
+        document.querySelectorAll('[title]').forEach(el => {
+            const t = el.getAttribute('title');
+            if (t && (t.includes('これらのオプション') || t.includes('いずれかを選択'))) {
+                el.setAttribute('title', '请选择一个选项。');
+            }
+        });
+    });
+
+    // 监听整个页面，防止 oTree 动态注入时漏掉
+    observer.observe(document.body, { childList: true, subtree: true });
+});
+</script>
+
+
+{% endblock %}

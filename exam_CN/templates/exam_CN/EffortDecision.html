@@ -1,0 +1,146 @@
+{{ block title }}
+    回合 {{ world_round }} / 5
+{{ endblock }}
+
+{{ block content }}
+<p><strong>你是 <u>玩家 {{ player.id_in_group }}</u>。</strong></p>
+
+<!-- 状况信息 -->
+<div class="card mb-3">
+    <div class="card-header">
+        <h5>状况信息</h5>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col">
+                <p>第 {{ world_round }} 回（共 5 回）</p>
+                <p>当前人生积分: <strong>{{ current_points }}</strong> 点</p>
+
+                <div class="alert alert-info">
+                    <p><strong>💰 本回合你获得了 {{ round_allowance }} 人生积分！</strong></p>
+                    <p>当前人生积分: <strong>{{ current_points }}</strong> 点</p>
+                    <small class="text-muted">(上回: {{ previous_points }} + 本回: {{ round_allowance }})</small>
+                </div>
+
+                {% if current_effort %}
+                    <p class="text-success">✅ 本回合学习时间: <strong>{{ current_effort }} 小时</strong></p>
+                {% else %}
+                    <p class="text-warning">⚠️ 你还没有选择本回合的学习时间。</p>
+                {% endif %}
+
+                {% if previous_effort and player.round_number not in [1, 6] %}
+                    <p class="text-muted">（上回学习时间: {{ previous_effort }} 小时）</p>
+                {% endif %}
+
+                {% if previous_round_rank and player.round_number not in [1, 6] %}
+                    <h5 class="text-primary fw-bold mt-3">
+                        📊 上回回合中的你的学习成绩排名是 <strong>{{ previous_round_rank }} 位</strong>。
+                    </h5>
+                {% endif %}
+
+                <p class="text-info">📚 累计学习时间: <strong>{{ current_total_hours }} 小时</strong></p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 学习时间选择 -->
+<div class="card mb-3">
+    <div class="card-header">
+        <h5>选择学习时间</h5>
+    </div>
+    <div class="card-body">
+        <p>
+            每回合开始时你会获得 <strong>{{ round_allowance }} 点</strong>人生积分。<br>
+            学习时间越长，学习成本将按照下表增加。
+        </p>
+
+        <!-- 可点击的学习成本表 -->
+        {% if cost_table %}
+        <div class="mt-3">
+            <h6>学习时间与成本表（点击选择）:</h6>
+            <div class="d-flex flex-wrap gap-3 mt-3">
+                {% for item in cost_table %}
+                <div class="effort-card btn btn-outline-primary p-3 text-center position-relative"
+                     data-effort="{{ item.hours }}">
+                    <h5 class="mb-1">{{ item.hours }} 小时</h5>
+                    <p class="mb-0 text-muted">{{ item.cost }} 点</p>
+                    <!-- ✅ 选中标志 -->
+                    <div class="checkmark">✅</div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- 隐藏的输入框，用于保存选择的时间 -->
+        <input type="hidden" name="effort" id="effort-input">
+
+        <p class="mt-3 text-muted">※ 请点击选择学习时间。</p>
+    </div>
+</div>
+
+{{ next_button }}
+
+<!-- 样式 + 动画 -->
+<style>
+.effort-card {
+    cursor: pointer;
+    transition: all 0.15s ease-in-out;
+    width: 110px;
+}
+.effort-card:hover {
+    transform: scale(1.05);
+}
+.effort-card.active {
+    background-color: #007bff;
+    color: white;
+    border-color: #0056b3;
+    box-shadow: 0 0 12px rgba(0, 123, 255, 0.6);
+    transform: scale(1.1);
+}
+.effort-card .checkmark {
+    position: absolute;
+    top: 8px;
+    right: 10px;
+    font-size: 1.3em;
+    display: none;
+}
+.effort-card.active .checkmark {
+    display: block;
+    animation: pop 0.25s ease;
+}
+@keyframes pop {
+    0% { transform: scale(0); opacity: 0; }
+    80% { transform: scale(1.3); opacity: 1; }
+    100% { transform: scale(1); }
+}
+</style>
+
+<!-- 脚本 -->
+<script>
+    const cards = document.querySelectorAll('.effort-card');
+    const input = document.getElementById('effort-input');
+
+    cards.forEach(card => {
+        card.addEventListener('click', () => {
+            // 清除高亮
+            cards.forEach(c => c.classList.remove('active'));
+            // 高亮当前
+            card.classList.add('active');
+            // 记录选择值
+            input.value = card.dataset.effort;
+        });
+    });
+
+    // 未选禁止提交
+    document.querySelector('form').addEventListener('submit', e => {
+        if (!input.value) {
+            e.preventDefault();
+            alert("请选择学习时间。");
+            return false;
+        }
+        sessionStorage.setItem('effort_submitted', 'true');
+    });
+</script>
+{{ endblock }}

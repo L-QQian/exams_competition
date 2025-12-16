@@ -1,0 +1,36 @@
+{% extends "global/Page.html" %}
+{% block title %}实验参与同意书{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="card shadow-sm p-4">
+        <h4>感谢您参加本研究。</h4>
+        <p class="mt-3">
+            本研究将邀请您进行与考试及教育相关的决策实验。
+            本研究由北陆先端科学技术大学院大学硕士二年级研究生
+            <strong>刘倩倩</strong>（Liu Qianqian）主导，
+            研究结果将可能用于硕士论文或学术期刊发表。
+        </p>
+        <p>
+            数据将以匿名形式公开于 Github 或学术期刊的数据仓库中，
+            不会包含您的姓名、学校等个人信息，
+            也不会记录谁获奖以及获奖金额。
+        </p>
+        <p class="mt-3">
+            您的参与完全出于自愿，并可在实验过程中随时中止。
+        </p>
+
+        <hr>
+        <div class="form-check">
+            <label class="form-check-label">
+                <input type="checkbox" name="consent" class="form-check-input">
+                我已阅读并理解上述说明，同意参加本实验。
+            </label>
+        </div>
+    </div>
+
+    <div class="mt-4">
+        {% next_button %}
+    </div>
+</div>
+{% endblock %}

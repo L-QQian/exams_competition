@@ -1,0 +1,49 @@
+{% block title %}
+新的世界开始（第二阶段）
+{% endblock %}
+
+{% block content %}
+<div class="container mt-5 text-center">
+
+  <!-- 🧭 前半生回顾卡片 -->
+  <div class="card p-4 shadow-lg rounded-3 mx-auto mb-4" style="max-width: 700px;">
+    <h4 class="text-danger mb-3">🌅 回顾你的前半人生</h4>
+    <p class="mb-2">
+      在刚刚结束的世界中，你共学习了 <strong>{{ total_hours }}</strong> 小时，<br>
+      累积获得了 <strong>{{ final_points }}</strong> 人生积分。
+    </p>
+    <p class="text-muted mb-0">
+      无论你是否实现了理想的目标，接下来的人生都是一次新的开始。
+    </p>
+  </div>
+
+  <!-- 🌍 新世界介绍 -->
+  <div class="card shadow-sm mx-auto" style="max-width: 700px;">
+    <div class="card-header bg-danger text-white">
+      <h4>🌍 新的世界开始（第二阶段）</h4>
+    </div>
+
+    <div class="card-body">
+      <p class="lead mt-3">时间流转，你的人生再次重启。</p>
+
+      <p class="mt-4">
+        这一次，你来到了一个 <strong>学历对终生收入差影响距大的世界</strong>。<br>
+        这里的竞争更加激烈，成功者将获得更多回报。
+      </p>
+
+      <p class="mt-3 text-muted">
+        你的努力依旧重要，但回报与风险将被进一步放大。<br>
+        请再次选择你的学习方式与生活平衡。
+      </p>
+
+      <hr>
+
+      <p class="mt-4">新的挑战开始了。<br>你准备好再次努力了吗？</p>
+
+      <form method="post">
+        <button type="submit" class="btn btn-danger mt-3 px-5">继续前进</button>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

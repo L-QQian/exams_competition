@@ -1,0 +1,31 @@
+{% block title %}抽奖结果{% endblock %}
+{% block content %}
+<div class="card mt-3">
+  <div class="card-header bg-primary text-white"><h5>🎲 抽奖结果</h5></div>
+  <div class="card-body">
+    <p>你的最终点数： <strong>{{ final_points }}</strong> pt</p>
+
+    {% if lottery_draws > 0 and lottery_numbers %}
+      <h6 class="mt-3">你的抽奖号码：</h6>
+      <div class="mt-2">
+        {% for n in lottery_numbers %}
+          <span class="badge bg-success me-1">{{ n }}</span>
+        {% endfor %}
+      </div>
+      <small class="text-muted d-block mt-2">
+        ※ 抽奖号码在所有参与者中均为唯一且不会重复。
+      </small>
+    {% else %}
+      <div class="alert alert-info mt-3">你没有获得抽奖机会。</div>
+    {% endif %}
+
+    <hr>
+    <h6>📜 抽奖规则</h6>
+    <ul class="mb-0">
+      <li>抽奖号码在本页面显示时<strong>自动分配</strong>，且所有参与者之间<strong>不会重复</strong>。</li>
+      <li>本次抽奖结<strong>果根据你在学历对终生收入差影响大的世界中</strong>的结果决定抽奖次数</li>
+      <li>抽奖将在实验结束后由研究人员统一进行并统计结果。</li>
+    </ul>
+  </div>
+</div>
+{% endblock %}
