@@ -1,0 +1,161 @@
+{% block title %}
+结果 - 回合 {{ world_round }}/5
+{% endblock %}
+
+{% block content %}
+    <p><strong>你是 <u>玩家 {{ player.id_in_group }}</u>。</strong></p>
+    
+    <!-- 公共：本回合的结果 -->
+    <div class="card mb-3">
+        <div class="card-header">
+            <h5>回合 {{ world_round }} 的结果</h5>
+        </div>
+        <div class="card-body">
+            <p>你当前的人生点积分: {{ player.points }}</p>
+            <p>累计学习时间: {{ total_hours }}</p>
+        </div>
+    </div>
+
+    <!-- 合格/不合格结果（第5回合・第10回合） -->
+    {% if player.round_number == 5 or player.round_number == C.NUM_ROUNDS %}
+    <div class="card mb-3">
+        <div class="alert alert-info">
+            <h3>合格结果</h3>
+        </div>
+        <div class="card-body">
+            <div class="alert alert-warning">
+                <h4>🏆 合格判定标准</h4>
+                <p>学习时间最多的玩家将考上顶尖大学。<br>
+                若学习成绩相同，将随机决定一名玩家合格。</p>
+            </div>    
+
+            {% if winner %}
+            <div class="alert alert-success">
+                <h3> 🎓 恭喜你！你考上了顶尖大学！</h3>
+                <p>你获得了人生积分 {{ winner_bonus }} 点奖励。</p>
+            </div>
+            {% else %}
+            <div class="alert alert-info">
+                <h3>很遗憾，你未能考上顶尖大学。</h3>
+                <p>你获得了人生积分 {{ loser_bonus }} 点奖励。</p>
+            </div>
+            {% endif %}
+
+            <h4>回合结束时的积分：<strong>{{ player.points }}</strong> 点</h4>
+            <h4>最终人生积分（含奖励）：<strong>{{ final_points }}</strong> 点</h4>
+        </div>
+    </div>
+    {% endif %}
+    
+
+    <!-- 你的行动记录（仅自己可见） -->
+    <div class="card mb-3">
+        <div class="card-header bg-info text-white">
+            <h4>你的行动记录</h4>
+        </div>
+        <div class="card-body">
+            <h5 class="mt-4">学习时间变化趋势</h5>
+            <canvas id="effortChart" style="height:100px;"></canvas>    
+            
+            <!-- ✅ 只显示自己的回合记录 -->
+            <table class="table table-bordered text-center align-middle mt-3">
+                <thead class="table-light">
+                    <tr>
+                        <th>回合</th>
+                        <th>学习时间</th>
+                        <th>当前人生积分</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for r in history %}
+                    <tr>
+                        <td>{{ r.round }}</td>
+                        <td>{{ r.effort }} 小时</td>
+                        <td>{{ r.points }} 积分</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- 你的考试结果（第5・第10回合均显示） -->
+    <div class="card">
+        <div class="card-header bg-primary text-white">
+            <h5>你的考试结果</h5>
+        </div>
+        <div class="card-body text-center">
+
+            <!-- ✅ 只显示自己的排名、点数、奖励 -->
+            <p>📚 <strong>学习成绩排名：</strong> 第 {{ my_result.rank }} 位</p>
+            <p>💰 <strong>回合结束时的人生积分：</strong> {{ points_before_bonus }} 点</p>
+            <p>🎁 <strong>{{ bonus_text }}</strong></p>
+            <hr>
+            <p><strong>最终人生积分（含奖励）：</strong> {{ final_points }} 点</p>
+                    
+            {% if my_result.winner %}
+                <p class="mt-3 text-success fw-bold">🎓 顶尖大学合格</p>
+            {% else %}
+                <p class="mt-3 text-muted">很遗憾，你未能合格。</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- 唯一的 Next 按钮 -->
+    <div class="mt-4">
+        {{ next_button }}
+    </div>
+
+    <!-- 图表数据 -->
+    <script id="history_data" type="application/json">{{ history_json|safe }}</script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <script>
+        const parsed = JSON.parse(document.getElementById('history_data').textContent);
+        const series = parsed.filter(r => Number.isFinite(r.effort) && Number.isInteger(r.round));
+        const effortData = parsed.map(r => r.effort);
+        const roundNumbers = parsed.map(r => r.round);
+    
+        const ctx = document.getElementById('effortChart').getContext('2d');
+        const chart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: roundNumbers,
+                datasets: [{
+                    label: '学习时间（小时）',
+                    data: effortData,
+                    borderColor: 'rgba(54, 162, 235, 1)',
+                    backgroundColor: 'rgba(54, 162, 235, 0.1)',
+                    fill: true,
+                    tension: 0.3,
+                    pointRadius: 5,
+                    pointHoverRadius: 7
+                }]
+            },
+            options: {
+                plugins: {
+                    legend: {
+                        labels: { font: { size: 14 } }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: { font: { size: 14 } },
+                        title: { 
+                            display: true,
+                            text: '学习时间', font: { size: 14, weight: 'bold'}
+                        }
+                    },
+                    x: {
+                        ticks: { font: { size: 14 } },
+                        title: {
+                            display: true,
+                            text: '回合', font: { size: 16, weight: 'bold' }
+                        }
+                    }
+                }
+            }
+        });
+    </script>
+{% endblock %}

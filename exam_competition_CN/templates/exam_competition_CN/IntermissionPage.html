@@ -1,0 +1,56 @@
+{% block title %}
+新世界的开始
+{% endblock %}
+
+{% block content %}
+<div class="container mt-5 text-center">
+    <div class="card shadow-sm mx-auto" style="max-width: 700px;">
+        <div class="card-header bg-primary text-white">
+            <h3>🌏 新世界的开始</h3>
+        </div>
+
+        <div class="card-body">
+            <!-- 主叙事文本 -->
+            <p class="lead mt-3 fw-semibold" style="font-size:1.2rem; line-height:1.8;">
+                {{ scenario_text|safe }}
+            </p>
+
+            <hr>
+
+            <!-- 回顾前半部分的数据 -->
+            <div class="mt-3">
+                <p>前半累计学习时间：<strong>{{ total_hours }}</strong> 小时</p>
+                <p>前半最终人生积分：<strong>{{ final_points }}</strong> 点</p>
+            </div>
+
+            <hr>
+
+            <!-- 进入下一世界的说明 -->
+            <p class="lead mt-4 fw-bold" style="font-size:1.3rem;">
+                在下一个世界中，<br>你将体验一个“学力导致终身收入差距较小”的社会。
+            </p>
+
+            <div class="mt-4 text-center">
+                <button class="btn btn-primary btn-lg" onclick="liveSend('next')">
+                    进入下一步
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+body {
+    background-color: #f5f7fa;
+    font-family: 'Noto Sans JP', sans-serif;
+}
+.card {
+    border-radius: 1rem;
+}
+.btn {
+    border-radius: 2rem;
+    padding: 0.6rem 2rem;
+    font-size: 1.2rem;
+}
+</style>
+{% endblock %}

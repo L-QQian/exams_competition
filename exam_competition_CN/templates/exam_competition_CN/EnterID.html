@@ -1,0 +1,16 @@
+{{ block title }}
+你的人生即将开始
+{{ endblock }}
+
+{{ block content }}
+<div class="card p-4 shadow-lg rounded-3">
+  <h3 class="mb-3 text-primary">编号输入</h3>
+  <p>请输入你的编号开始接下来的人生。</p>
+  <p class="text-muted">（例：A101）</p>
+
+  {{ formfields }}
+
+  <button class="btn btn-success mt-3" type="submit">进入下一步</button>
+</div>
+
+{{ endblock }}
